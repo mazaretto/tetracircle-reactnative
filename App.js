@@ -1,21 +1,40 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react'
+import { ImageBackground } from 'react-native'
+import { NativeRouter, Route } from 'react-router-native'
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+import ChangeGameScreen from './components/ChangeGameScreen'
+import GameScreen from './components/GameScreen'
+import MenuScreen from './components/MenuScreen'
+
+import BackgroundImage from './assets/bg.png'
+import { AppLoading } from 'expo'
+
+import { GetAllFonts } from './Functions'
+
+const App = () => {
+  let [fontsLoaded, setfontsLoaded] = useState(false)
+
+  const LoadFonts = async () => {
+    await GetAllFonts()
+    setfontsLoaded(true)
+  }
+
+  if (!fontsLoaded) {
+    LoadFonts()
+
+    return <AppLoading />
+  }
+
+  return <NativeRouter>
+    <ImageBackground
+      source={BackgroundImage}
+      style={{width: '100%', height: '100%'}}
+    >
+      <Route exact path="/" component={MenuScreen} />
+      <Route path="/game/:gameId/:gameLVL?" component={GameScreen} />
+      <Route path="/games" component={ChangeGameScreen} />
+    </ImageBackground>
+  </NativeRouter>
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App
