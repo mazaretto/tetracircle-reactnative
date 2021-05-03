@@ -1,4 +1,6 @@
 import * as Font from 'expo-font'
+import { Audio } from 'expo-av'
+import syncStorage from 'sync-storage'
 
 export function tUpper (text) {
     return text.trim().toUpperCase()
@@ -6,6 +8,32 @@ export function tUpper (text) {
 
 export function uniqueArr (arr, prop) {
     return arr.filter(item => item[prop] !== '')
+}
+
+const btnSound = require('./assets/sounds/btn.wav')
+const sound0 = require('./assets/sounds/0.mp3')
+const sound1 = require('./assets/sounds/1.mp3')
+const sound2 = require('./assets/sounds/2.mp3')
+
+export async function playSound (name) {
+    const permissionSoundPlay = parseInt(syncStorage.get('soundStatus'))
+    
+    console.log(permissionSoundPlay)
+
+    if(!permissionSoundPlay) {
+        const files = {
+            'btn': btnSound,
+            0: sound0,
+            1: sound1,
+            2: sound2
+        }
+    
+        if(files[name]) {
+            const { sound } = await Audio.Sound.createAsync(files[name])
+    
+            await sound.playAsync()
+        }
+    }
 }
 
 export function sortBy (prop, arr) {

@@ -1,6 +1,7 @@
 import React, {useState} from 'react'
 import { StyleSheet, Text, TouchableHighlight, View } from 'react-native'
 import { Link } from 'react-router-native'
+import { playSound } from '../Functions'
 
 import STYLES from '../Styles'
 
@@ -14,7 +15,7 @@ export default ChangeGameScreen = () => {
     ]
 
     return <View style={styles.menu}>
-        <Title text={'Выберите игру'} />
+        <Title text={'Выбрать игру'} />
 
         <View style={{
             flex: 1,
@@ -33,19 +34,19 @@ export default ChangeGameScreen = () => {
         </View>
     
         <View>
-            <Link to={`/game/0/${lvl}`}>
-                <Text style={STYLES.btn}>Больше шариков</Text>
+            <Link onPress={() => playSound(0)} to={`/game/0/${lvl}`}>
+                <Text style={STYLES.btn}>Ряд одного цвета</Text>
             </Link>
 
-            <Link to={`/game/1/${lvl}`}>
-                <Text style={STYLES.btn}>Больше скорость</Text>
+            <Link onPress={() => playSound(1)} to={`/game/1/${lvl}`}>
+                <Text style={STYLES.btn}>Разноцветный ряд</Text>
             </Link>
 
-            <Link to={`/game/2/${lvl}`}>
-                <Text style={STYLES.btn}>Больше рядов</Text>
+            <Link onPress={() => playSound(2)} to={`/game/2/${lvl}`}>
+                <Text style={STYLES.btn}>Бесконечный поток</Text>
             </Link>  
 
-            <Link to="/">
+            <Link onPress={() => playSound('btn')} to="/">
                 <Text style={STYLES.btn}>В меню</Text>
             </Link>   
         </View>

@@ -10,6 +10,7 @@ import BackgroundImage from './assets/bg.png'
 import { AppLoading } from 'expo'
 
 import { GetAllFonts } from './Functions'
+import SyncStorage from 'sync-storage'
 
 const App = () => {
   let [fontsLoaded, setfontsLoaded] = useState(false)
@@ -21,6 +22,8 @@ const App = () => {
 
   if (!fontsLoaded) {
     LoadFonts()
+
+    SyncStorage.init()
 
     return <AppLoading />
   }
