@@ -34,15 +34,15 @@ export default ChangeGameScreen = () => {
         </View>
     
         <View>
-            <Link onPress={() => playSound(0)} to={`/game/0/${lvl}`}>
+            <Link onPress={() => playSound(0, .5)} to={`/game/0/${lvl}`}>
                 <Text style={STYLES.btn}>Ряд одного цвета</Text>
             </Link>
 
-            <Link onPress={() => playSound(1)} to={`/game/1/${lvl}`}>
+            <Link onPress={() => playSound(1, .5)} to={`/game/1/${lvl}`}>
                 <Text style={STYLES.btn}>Разноцветный ряд</Text>
             </Link>
 
-            <Link onPress={() => playSound(2)} to={`/game/2/${lvl}`}>
+            <Link onPress={() => playSound(2, .5)} to={`/game/2/${lvl}`}>
                 <Text style={STYLES.btn}>Бесконечный поток</Text>
             </Link>  
 

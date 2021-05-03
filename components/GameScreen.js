@@ -1,9 +1,10 @@
+import { AppLoading } from 'expo';
 import React from 'react'
 import { Button, Dimensions, StyleSheet, Text, TouchableHighlight, View } from 'react-native'
 import Modal from 'react-native-modal';
 import { Link } from 'react-router-native';
 import Title from '../elements/Title';
-import { randomElemArray } from '../Functions'
+import { playSound, randomElemArray } from '../Functions'
 import STYLES from '../Styles'
 
 const FIRST_LVL = {
@@ -14,7 +15,7 @@ const DEFAULT_STATE_MENU = {
     balls: 0,
     invalidBalls: 0,
     lvl: 0,
-    gameId: 0,
+    gameId: null,
     maxRows: 4,
     validRowsCount: 0,
     maxLVL: 2,
@@ -46,7 +47,7 @@ let GAME = {
 class GameScene extends React.Component {
     state = {
         circles: [],
-        color: randomElemArray(GAME.colors),
+        color: [],
         validRows: {}
     }
     
@@ -62,12 +63,26 @@ class GameScene extends React.Component {
         return GAME.wh-GAME.gameMenuBottomHeight
     }
 
-    updateColor = () => this.setState(() => ({ color: randomElemArray(GAME.colors) }))
+    updateColor = () => {
+        const { gameId, rows } = this.props
+
+        let defaultColor = randomElemArray(GAME.colors)
+        let colorArray = []
+
+        // Разноцветные шарики
+        for(let i = 0; i <= rows; i++) {
+            colorArray.push(gameId == 1 ? randomElemArray(GAME.colors) : defaultColor)
+        }
+
+        this.setState(() => ({ color: colorArray }))
+    }
 
     componentDidMount () {
         const { 
             actionBall, actionInvalidBall, actionCountValidRows
         } = this.props
+
+        this.updateColor()
 
         let AddCircles = () => {
             setTimeout(AddCircles, this.props.defaultTimeAdd - (this.props.circleSpeed*20))
@@ -101,9 +116,11 @@ class GameScene extends React.Component {
     
                             if(item.y+(GAME.circleWH*2) >= this.getHeightScene) {
                                 // Проверка на цвет
-                                if(item.color !== this.state.color) {
+                                if(this.state.color[item.row] !== item.color) {
                                     actionBall(-1)
                                     actionInvalidBall(-1)
+
+                                    playSound('minusBall')
                                 } else {
                                     if(!this.state.validRows[item.row])
                                         this.setState(prevState => ({ validRows: {
@@ -119,7 +136,11 @@ class GameScene extends React.Component {
                                         // Если режим не "Бесконечный поток"
                                         if(this.props.gameId != 2) 
                                             clearCircles = true
+
+                                        playSound('rowSuccess')
                                     }
+
+                                    playSound('plusBall')
 
                                     actionBall(1)
                                 }
@@ -150,13 +171,25 @@ class GameScene extends React.Component {
         </TouchableHighlight>
     }
 
+    getCircleColor (index) {
+        const { color } = this.state
+
+        if(color.length === 1) {
+            return color[0]
+        } else {
+            return color[index]
+        }
+    }
+
     showTriggerCircles = () => {
         const { rows } = this.props
-        const { color, validRows } = this.state
+        let { validRows } = this.state
 
         let circlesTriggers = []
 
         for(let i = 0; i < rows; i++) {
+            let color = this.getCircleColor(i)
+
             let isRowValid = validRows[i],
                 circleX = (i*GAME.circleWH*2) + (i*10),
                 circleComponent = isRowValid ? this.showCircle(circleX, 0, color, i, null, null) : this.showCircle(circleX, 0, null, i, null, color)
@@ -178,8 +211,9 @@ class GameScene extends React.Component {
                 }]}>
                     {circles.map((item, i) => {
                         return this.showCircle(item.x, item.y, item.color, i, () => {
-                            if(item.color == this.state.color) {
+                            if(this.state.color[item.row] == item.color) {
                                 this.props.actionBall(-2)
+                                playSound('minusBall')
                             } 
 
                             circles.splice(i, 1)
@@ -246,6 +280,8 @@ export default class MenuScreen extends React.Component {
                 } else if (balls === 150) {
                     this.pauseGame()
                     this.setState(() => ({ gameEnd: true }))
+                } else if (balls === -30) {
+                    playSound('plusBall')
                 }
                 
             })
@@ -351,6 +387,9 @@ export default class MenuScreen extends React.Component {
         const { rows, balls, lvl, gameStop, modalMenuVisible, validRowsCount, maxLVL,
             defaultTime, defaultTimeAdd, circleSpeed, lvlTriggerColored, invalidBalls, gameId
         } = this.state
+
+        if(gameId < 0 || gameId === null)
+            return <AppLoading />
 
         return <View>
             <Modal isVisible={modalMenuVisible}>

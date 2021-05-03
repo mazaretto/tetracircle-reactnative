@@ -15,17 +15,23 @@ const sound0 = require('./assets/sounds/0.mp3')
 const sound1 = require('./assets/sounds/1.mp3')
 const sound2 = require('./assets/sounds/2.mp3')
 
-export async function playSound (name) {
-    const permissionSoundPlay = parseInt(syncStorage.get('soundStatus'))
-    
-    console.log(permissionSoundPlay)
+const gameFail = require('./assets/sounds/game_fail.mp3')
+const plusBall = require('./assets/sounds/plus_ball.mp3')
+const minusBall = require('./assets/sounds/minus_ball.mp3')
+const rowSuccess = require('./assets/sounds/row_success.mp3')
 
+export async function playSound (name, volume = 1) {
+    const permissionSoundPlay = parseInt(syncStorage.get('soundStatus'))
     if(!permissionSoundPlay) {
         const files = {
             'btn': btnSound,
             0: sound0,
             1: sound1,
-            2: sound2
+            2: sound2,
+            'gameFail': gameFail,
+            'plusBall': plusBall,
+            'minusBall': minusBall,
+            'rowSuccess': rowSuccess
         }
     
         if(files[name]) {

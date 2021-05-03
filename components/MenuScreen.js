@@ -6,7 +6,6 @@ import STYLES from '../Styles'
 import Logo from '../assets/logo.png'
 import { playSound } from '../Functions'
 import syncStorage from 'sync-storage'
-import { Audio } from 'expo-av'
 
 export default MenuScreen = () => {
     const soundStatus = parseInt(syncStorage.get('soundStatus'))
@@ -25,8 +24,11 @@ export default MenuScreen = () => {
             </Link>
             <TouchableHighlight onPress={() => {
                 playSound('btn')
-                setsoundActive(soundActive === 1 ? 0 : 1)
-                syncStorage.set('soundStatus', soundActive)
+
+                let newSoundActive = soundActive === 1 ? 0 : 1
+
+                setsoundActive(newSoundActive)
+                syncStorage.set('soundStatus', newSoundActive)
             }}>
                 <Text style={STYLES.btn}>Аудио ({soundActive === 1 ? 'вкл.' : 'выкл.'})</Text>
             </TouchableHighlight>
