@@ -14,32 +14,98 @@ const btnSound = require('./assets/sounds/btn.wav')
 const sound0 = require('./assets/sounds/0.mp3')
 const sound1 = require('./assets/sounds/1.mp3')
 const sound2 = require('./assets/sounds/2.mp3')
-
+const menuSound = require('./assets/sounds/menu.mp3')
 const gameFail = require('./assets/sounds/game_fail.mp3')
 const plusBall = require('./assets/sounds/plus_ball.mp3')
 const minusBall = require('./assets/sounds/minus_ball.mp3')
 const rowSuccess = require('./assets/sounds/row_success.mp3')
 
-export async function playSound (name, volume = 1) {
-    const permissionSoundPlay = parseInt(syncStorage.get('soundStatus'))
-    if(!permissionSoundPlay) {
-        const files = {
-            'btn': btnSound,
-            0: sound0,
-            1: sound1,
-            2: sound2,
-            'gameFail': gameFail,
-            'plusBall': plusBall,
-            'minusBall': minusBall,
-            'rowSuccess': rowSuccess
-        }
-    
-        if(files[name]) {
-            const { sound } = await Audio.Sound.createAsync(files[name])
-    
-            await sound.playAsync()
+let APP_AUDIOS = []
+
+export async function playSound (name, volume = 1, prop) {
+    const permissionSoundPlay = syncStorage.get('soundStatus')
+    const permissionMusicPlay = syncStorage.get('musicStatus')
+
+    let data = {
+        loop: false
+    }
+
+    if(typeof prop === "object") {
+        for(let i in prop) {
+            if(data[i]) {
+                data[i] = prop[i]
+            }
         }
     }
+    
+    const files = {
+        'btn': {
+            file: btnSound,
+            is: 'sound'
+        },
+        0: {
+            file: sound0,
+            is: 'music'
+        },
+        1: {
+            file: sound1,
+            is: 'music'
+        },
+        2: {
+            file: sound2,
+            is: 'music'
+        },
+        'gameFail': {
+            file: gameFail,
+            is: 'sound'
+        },
+        'plusBall': {
+            file: plusBall,
+            is: 'sound'
+        },
+        'minusBall': {
+            file: minusBall,
+            is: 'sound'
+        },
+        'rowSuccess': {
+            file: rowSuccess,
+            is: 'sound'
+        },
+        'menu': {
+            file: menuSound,
+            is: 'music'
+        }
+    }
+    
+    if(files[name]) {
+        const $file = files[name]
+        
+        if($file.is === 'music' && !permissionMusicPlay) {
+            return 
+        } else if ($file.is === 'sound' && !permissionSoundPlay) {
+            return 
+        }
+
+        const { sound } = await Audio.Sound.createAsync($file.file, {
+            isLooping: data.loop,
+            volume
+        })
+
+        if($file.is === 'music') {
+            APP_AUDIOS.push(sound)
+        }
+
+        await sound.playAsync()
+    }
+}
+
+export function stopAllAudios () {
+    APP_AUDIOS.forEach(async audio => {
+        await audio.stopAsync()
+        await audio.unloadAsync()
+    })
+
+    APP_AUDIOS = []
 }
 
 export function sortBy (prop, arr) {

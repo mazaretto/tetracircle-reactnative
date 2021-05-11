@@ -1,17 +1,17 @@
 import React, {useState} from 'react'
 import { StyleSheet, Text, TouchableHighlight, View } from 'react-native'
 import { Link } from 'react-router-native'
-import { playSound } from '../Functions'
+import { playSound, stopAllAudios } from '../Functions'
 
 import STYLES from '../Styles'
 
 export default ChangeGameScreen = () => {
-    const [lvl, setlvl] = useState(0)
+    const [lvl, setlvl] = useState(1)
 
     const lvls = [
-        {name: 'Легко', value: 0, color: '#d0ffc9'},
-        {name: 'Средне', value: 1, color: '#fff58e'},
-        {name: 'Сложно', value: 2, color: '#ffbfbf'}
+        {name: 'Легкий', value: 0, color: '#d0ffc9'},
+        {name: 'Средний', value: 1, color: '#fff58e'},
+        {name: 'Тяжелый', value: 2, color: '#ffbfbf'}
     ]
 
     return <View style={styles.menu}>
@@ -25,7 +25,10 @@ export default ChangeGameScreen = () => {
             alignItems: 'center'
         }}>
              {lvls.map((item, i) => {
-                 return <TouchableHighlight onPress={() => setlvl(item.value)} key={i} style={[styles.lvl, {
+                 return <TouchableHighlight onPress={() => {
+                    playSound('btn') 
+                    setlvl(item.value)
+                }} key={i} style={[styles.lvl, {
                      backgroundColor: item.color
                  }]}>
                      <Text style={styles.lvlText}>{item.value === lvl ? '✓' : ''} {item.name}</Text>
@@ -34,15 +37,15 @@ export default ChangeGameScreen = () => {
         </View>
     
         <View>
-            <Link onPress={() => playSound(0, .5)} to={`/game/0/${lvl}`}>
+            <Link to={`/game/0/${lvl}`}>
                 <Text style={STYLES.btn}>Ряд одного цвета</Text>
             </Link>
 
-            <Link onPress={() => playSound(1, .5)} to={`/game/1/${lvl}`}>
+            <Link to={`/game/1/${lvl}`}>
                 <Text style={STYLES.btn}>Разноцветный ряд</Text>
             </Link>
 
-            <Link onPress={() => playSound(2, .5)} to={`/game/2/${lvl}`}>
+            <Link to={`/game/2/${lvl}`}>
                 <Text style={STYLES.btn}>Бесконечный поток</Text>
             </Link>  
 

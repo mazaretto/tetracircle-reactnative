@@ -4,7 +4,7 @@ import { Button, Dimensions, StyleSheet, Text, TouchableHighlight, View } from '
 import Modal from 'react-native-modal';
 import { Link } from 'react-router-native';
 import Title from '../elements/Title';
-import { playSound, randomElemArray } from '../Functions'
+import { playSound, randomElemArray, stopAllAudios } from '../Functions'
 import STYLES from '../Styles'
 
 const FIRST_LVL = {
@@ -22,6 +22,7 @@ const DEFAULT_STATE_MENU = {
     gameStop: false,
     modalMenuVisible: false,
     gameEnd: false,
+    gameReRender: false,
 
     lvlTriggerColored: false,
 
@@ -71,7 +72,15 @@ class GameScene extends React.Component {
 
         // Разноцветные шарики
         for(let i = 0; i <= rows; i++) {
-            colorArray.push(gameId == 1 ? randomElemArray(GAME.colors) : defaultColor)
+            let colorArrayItem = gameId == 1 ? randomElemArray(GAME.colors) : defaultColor,
+                findedColor = colorArray.filter(color => color === colorArrayItem)
+
+            // Проверяем цвет
+            if(!findedColor.length && i > 1) {
+                colorArray.push(findedColor[0])
+            } else {
+                colorArray.push(colorArrayItem)
+            }
         }
 
         this.setState(() => ({ color: colorArray }))
@@ -249,8 +258,8 @@ export default class MenuScreen extends React.Component {
                 defaultTime: 900
             },
             2: {
-                circleSpeed: 6,
-                defaultTime: 800
+                circleSpeed: 8,
+                defaultTime: 750
             }
         }
     }
@@ -263,21 +272,25 @@ export default class MenuScreen extends React.Component {
     }
 
     setBalls = index => {
-        const { gameEnd } = this.state
+        const { gameEnd, gameId } = this.state
 
         if(!gameEnd) {
             this.setState(prevState => ({ balls: prevState.balls + index }), () => {
                 const { balls, gameTypeTrigger } = this.state
+
+                let ballsIndex = 15
+
+                if(balls % ballsIndex === 0 && balls > 0) {
+                    this.changeLVL(null)
+                    this.triggerColorLvl()
+                }
                 
-                if(balls === 30) {
-                    this.changeLVL(1)
-                    this.triggerColorLvl()
+                if(balls === 15) {
                     gameTypeTrigger()
-                } else if (balls === 40) {
-                    this.changeLVL(2)
-                    this.triggerColorLvl()
+                } else if (balls === 30) {
                     gameTypeTrigger()
-                } else if (balls === 150) {
+                // Если режим не равен бесконечному режиму
+                } else if (balls === 150 && gameId != 2) {
                     this.pauseGame()
                     this.setState(() => ({ gameEnd: true }))
                 } else if (balls === -30) {
@@ -329,7 +342,7 @@ export default class MenuScreen extends React.Component {
 
                 gameTypeTrigger = () => {
                     this.setState(prevState => ({
-                        rows: prevState.rows + 1 > maxRows ? maxRows : prevState.rows + 1,
+                        rows: prevState.rows + 1 > maxRows ? 2 : prevState.rows + 1,
 
                         defaultTimeAdd: prevState.defaultTimeAdd - 100
                     }))
@@ -344,7 +357,7 @@ export default class MenuScreen extends React.Component {
 
                 gameTypeTrigger = () => {
                     this.setState(prevState => ({
-                        rows: prevState.rows + 1 > maxRows ? maxRows : prevState.rows + 1,
+                        rows: prevState.rows + 1 > maxRows ? 2 : prevState.rows + 1,
 
                         defaultTime: prevState.defaultTime - 50,
                         circleSpeed: prevState.circleSpeed - .5
@@ -363,7 +376,7 @@ export default class MenuScreen extends React.Component {
                 
                 gameTypeTrigger = () => {
                     this.setState(prevState => ({
-                        rows: prevState.rows + 1 > maxRows ? maxRows : prevState.rows + 1
+                        rows: prevState.rows + 1 > maxRows ? 2 : prevState.rows + 1
                     }))
                 }
             break;
@@ -372,23 +385,52 @@ export default class MenuScreen extends React.Component {
         this.setState(() => ({ gameId: gameType, gameTypeTrigger }))
     }
 
-    changeLVL = lvl => this.setState(() => ({ lvl: lvl > this.state.maxLVL ? this.state.maxLVL : lvl }))
+    changeLVL = lvl => {
+        if(lvl) {
+            this.setState(() => ({ 
+                lvl: lvl > this.state.maxLVL ? this.state.maxLVL : lvl 
+            }))
+        } else {
+            this.setState(prevState => ({ 
+                lvl: prevState.lvl+1 > this.state.maxLVL ? 0 : prevState.lvl+1 
+            }))
+        }
+    }
 
     pauseGame = () => this.setState(prevState => ({ gameStop: !prevState.gameStop }))
 
-    componentDidMount () {
+    loadGame = () => {
         const { gameId = 0, gameLVL = 0 } = this.props.match.params
+
+        stopAllAudios()
+        playSound(gameId, .5, { loop: true })
 
         this.updateLVL(parseInt(gameLVL))
         this.updateGameType(gameId)
     }
 
+    componentDidMount () {
+        this.loadGame()
+    }
+
+    newGame = () => {
+        let newGameState = DEFAULT_STATE_MENU
+
+        newGameState.gameReRender = true
+
+        this.setState(DEFAULT_STATE_MENU, () => {
+            this.setState(() => ({ gameReRender: false }))
+            this.loadGame()
+        })
+    }
+
     render() {
         const { rows, balls, lvl, gameStop, modalMenuVisible, validRowsCount, maxLVL,
-            defaultTime, defaultTimeAdd, circleSpeed, lvlTriggerColored, invalidBalls, gameId
+            defaultTime, defaultTimeAdd, circleSpeed, lvlTriggerColored, invalidBalls, gameId,
+            gameReRender
         } = this.state
 
-        if(gameId < 0 || gameId === null)
+        if((gameId < 0 || gameId === null) || gameReRender)
             return <AppLoading />
 
         return <View>
@@ -396,16 +438,22 @@ export default class MenuScreen extends React.Component {
                 <View style={styles.modal}>
                     <Title text={'Меню'} />
 
-                    <Link to={`/games`}>
+                    <Link onPress={() => {
+                        playSound('btn')
+                        stopAllAudios()
+                    }} to={`/games`}>
                         <Text style={STYLES.btn}>Выбрать игру</Text>
                     </Link> 
                     <TouchableHighlight onPress={() => this.toggleMenu('Menu')}>
                         <Text style={STYLES.btn}>Продолжить игру</Text>
                     </TouchableHighlight>
-                    <TouchableHighlight onPress={() => this.setState(DEFAULT_STATE_MENU)}>
+                    <TouchableHighlight onPress={() => this.newGame()}>
                         <Text style={STYLES.btn}>Начать игру</Text>
                     </TouchableHighlight>
-                    <Link to="/">
+                    <Link onPress={() => {
+                        playSound('btn')
+                        stopAllAudios()
+                    }} to="/">
                         <Text style={STYLES.btn}>Выйти в главное меню</Text>
                     </Link> 
                 </View>
@@ -429,7 +477,7 @@ export default class MenuScreen extends React.Component {
                 balls <= -30 || invalidBalls <= -30 ? 
                     <View>
                         <Text style={styles.end}>Вы проиграли!</Text>
-                        <Button title={'Начать заново'} onPress={() => this.setState(DEFAULT_STATE_MENU)} />
+                        <Button title={'Начать заново'} onPress={() => this.newGame()} />
                     </View>
                 : <GameScene 
                 defaultTime={defaultTime}
@@ -444,20 +492,6 @@ export default class MenuScreen extends React.Component {
                 rows={rows} /> 
                 
             : <Text style={styles.end}>Игра успешно завершена! У вас {balls} баллов!</Text>}
-
-            <View style={[styles.topMenu, {
-                marginTop: 0
-            }]}>
-                <Link to="/games" style={styles.menuItem}>
-                    <Text style={styles.menuText}>Режим</Text>
-                </Link>
-                
-                <TouchableHighlight style={[styles.menuItem, styles.menuLink]} onPress={this.pauseGame}>
-                    <Text style={styles.menuText}>{gameStop ? 'Старт' : 'Пауза'}</Text>
-                </TouchableHighlight>
-                
-                <Text style={[styles.menuItem, styles.menuText]}>{validRowsCount} рядов</Text>
-            </View>
         </View>
     }
 }
