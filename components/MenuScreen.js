@@ -20,7 +20,9 @@ export default MenuScreen = () => {
     if(!appinit) {
         stopAllAudios()
         setmusicActive(true)
+        setsoundActive(true)
         syncStorage.set('musicStatus', true)
+        syncStorage.set('soundStatus', true)
 
         playSound('menu', 1, {
             loop: true

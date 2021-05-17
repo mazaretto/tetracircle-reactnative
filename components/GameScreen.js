@@ -222,6 +222,7 @@ class GameScene extends React.Component {
                         return this.showCircle(item.x, item.y, item.color, i, () => {
                             if(this.state.color[item.row] == item.color) {
                                 this.props.actionBall(-2)
+                                this.props.actionInvalidBall(-2)
                                 playSound('minusBall')
                             } 
 
@@ -290,7 +291,7 @@ export default class MenuScreen extends React.Component {
                 } else if (balls === 30) {
                     gameTypeTrigger()
                 // Если режим не равен бесконечному режиму
-                } else if (balls === 150 && gameId != 2) {
+                } else if (balls === 500 && gameId != 2) {
                     this.pauseGame()
                     this.setState(() => ({ gameEnd: true }))
                 } else if (balls === -30) {
@@ -344,7 +345,7 @@ export default class MenuScreen extends React.Component {
                     this.setState(prevState => ({
                         rows: prevState.rows + 1 > maxRows ? 2 : prevState.rows + 1,
 
-                        defaultTimeAdd: prevState.defaultTimeAdd - 100
+                        defaultTimeAdd: prevState.defaultTimeAdd - 70
                     }))
                 }
             break;
@@ -359,24 +360,26 @@ export default class MenuScreen extends React.Component {
                     this.setState(prevState => ({
                         rows: prevState.rows + 1 > maxRows ? 2 : prevState.rows + 1,
 
-                        defaultTime: prevState.defaultTime - 50,
-                        circleSpeed: prevState.circleSpeed - .5
+                        defaultTime: prevState.defaultTime - 40,
+                        circleSpeed: prevState.circleSpeed - .4
                     }))
                 }
             break;
 
-            // 2 - больше рядов
+            // 2 - бесконечный поток
             case 2:
                 this.setState(() => ({ 
                     rows: 2,
                     circleSpeed: 5,
-                    defaultTime: 800,
-                    defaultTimeAdd: 1000
+                    defaultTimeAdd: 1200
                 }))
                 
                 gameTypeTrigger = () => {
                     this.setState(prevState => ({
-                        rows: prevState.rows + 1 > maxRows ? 2 : prevState.rows + 1
+                        rows: prevState.rows + 1 > maxRows ? 2 : prevState.rows + 1,
+
+                        defaultTime: prevState.defaultTime - 50,
+                        circleSpeed: prevState.circleSpeed - .5
                     }))
                 }
             break;
@@ -424,6 +427,24 @@ export default class MenuScreen extends React.Component {
         })
     }
 
+    getTextLvl () {
+        const { lvl } = this.state
+
+        switch(lvl) {
+            case 1:
+                return 'Средний'
+            break;
+
+            case 2:
+                return 'Тяжелый'
+            break;
+
+            default:
+                return 'Легкий'
+            break;
+        }
+    }
+
     render() {
         const { rows, balls, lvl, gameStop, modalMenuVisible, validRowsCount, maxLVL,
             defaultTime, defaultTimeAdd, circleSpeed, lvlTriggerColored, invalidBalls, gameId,
@@ -432,6 +453,8 @@ export default class MenuScreen extends React.Component {
 
         if((gameId < 0 || gameId === null) || gameReRender)
             return <AppLoading />
+
+        const textLvl = this.getTextLvl()
 
         return <View>
             <Modal isVisible={modalMenuVisible}>
@@ -467,7 +490,7 @@ export default class MenuScreen extends React.Component {
                 <TouchableHighlight onPress={() => this.updateLVL(lvl + 1 > maxLVL ? 0 : lvl + 1)} style={[styles.menuItem, styles.menuLink, lvlTriggerColored ? {
                     backgroundColor: 'yellow'
                 } : {}]}>
-                    <Text style={styles.menuText}>Уровень {lvl+1}</Text>
+                    <Text style={styles.menuText}>{textLvl}</Text>
                 </TouchableHighlight>
             </View>
 

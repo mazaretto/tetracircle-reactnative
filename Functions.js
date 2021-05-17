@@ -32,7 +32,7 @@ export async function playSound (name, volume = 1, prop) {
 
     if(typeof prop === "object") {
         for(let i in prop) {
-            if(data[i]) {
+            if(data[i] !== undefined) {
                 data[i] = prop[i]
             }
         }
@@ -90,6 +90,10 @@ export async function playSound (name, volume = 1, prop) {
             isLooping: data.loop,
             volume
         })
+
+        if(data.loop) {
+            sound.setIsLoopingAsync(true)
+        }
 
         if($file.is === 'music') {
             APP_AUDIOS.push(sound)
