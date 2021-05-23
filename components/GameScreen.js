@@ -113,7 +113,7 @@ class GameScene extends React.Component {
         AddCircles()
 
         let Loop = () => {
-            setTimeout(Loop, this.props.defaultTime/60)
+            setTimeout(Loop, 1000/60) // this.props.defaultTime
             
             let clearCircles = false
 
@@ -173,10 +173,14 @@ class GameScene extends React.Component {
             borderColor: border
         } : {}
 
+        const { validRowsCount } = this.props 
+
         return <TouchableHighlight onPress={() => {
             onPress ? onPress() : ''
         }} key={i} style={[{top: y, left: x, backgroundColor: color ? color : '#fff', ...styleBorder},styles.circle]}>
-            <View></View>
+            {border ? <Text style={{textAlign: 'center', fontSize: 43, color: border}}>
+                {validRowsCount}
+            </Text> : <View></View>}
         </TouchableHighlight>
     }
 
@@ -278,20 +282,8 @@ export default class MenuScreen extends React.Component {
         if(!gameEnd) {
             this.setState(prevState => ({ balls: prevState.balls + index }), () => {
                 const { balls, gameTypeTrigger } = this.state
-
-                let ballsIndex = 15
-
-                if(balls % ballsIndex === 0 && balls > 0) {
-                    this.changeLVL(null)
-                    this.triggerColorLvl()
-                }
                 
-                if(balls === 15) {
-                    gameTypeTrigger()
-                } else if (balls === 30) {
-                    gameTypeTrigger()
-                // Если режим не равен бесконечному режиму
-                } else if (balls === 500 && gameId != 2) {
+                if (balls === 500 && gameId != 2) {
                     this.pauseGame()
                     this.setState(() => ({ gameEnd: true }))
                 } else if (balls === -30) {
@@ -305,7 +297,17 @@ export default class MenuScreen extends React.Component {
 
     setInvalidBalls = index => this.setState(prevState => ({ invalidBalls: prevState.invalidBalls + index }))
 
-    setValidRows = index => this.setState(prevState => ({ validRowsCount: prevState.validRowsCount + index }))
+    setValidRows = index => {
+        this.setState(prevState => ({ validRowsCount: prevState.validRowsCount + index }), () => {
+            const { validRowsCount, gameTypeTrigger } = this.state
+
+            if(validRowsCount % 3 === 0 && validRowsCount > 0) {
+                this.changeLVL(null)
+                this.triggerColorLvl()
+                gameTypeTrigger()
+            }
+        })
+    }
 
     toggleMenu = menuKey => {
         let $key = 'modal' + menuKey + 'Visible'
@@ -508,6 +510,7 @@ export default class MenuScreen extends React.Component {
                 circleSpeed={circleSpeed}
                 gameStop={gameStop} 
                 lvl={lvl}
+                validRowsCount={validRowsCount}
                 gameId={gameId}
                 actionCountValidRows={newCount => this.setValidRows(newCount)}
                 actionBall={newBall => this.setBalls(newBall)} 
