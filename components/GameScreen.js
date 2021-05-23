@@ -221,8 +221,8 @@ class GameScene extends React.Component {
                     {circles.map((item, i) => {
                         return this.showCircle(item.x, item.y, item.color, i, () => {
                             if(this.state.color[item.row] == item.color) {
-                                this.props.actionBall(-2)
-                                this.props.actionInvalidBall(-2)
+                                this.props.actionBall(-1)
+                                this.props.actionInvalidBall(-1)
                                 playSound('minusBall')
                             } 
 

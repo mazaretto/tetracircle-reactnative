@@ -7,12 +7,23 @@ import STYLES from '../Styles'
 
 export default ChangeGameScreen = () => {
     const [lvl, setlvl] = useState(1)
+    const [musicInit, setmusicInit] = useState(false)
 
     const lvls = [
         {name: 'Легкий', value: 0, color: '#d0ffc9'},
         {name: 'Средний', value: 1, color: '#fff58e'},
         {name: 'Тяжелый', value: 2, color: '#ffbfbf'}
     ]
+
+    if(!musicInit) {
+        stopAllAudios()
+        playSound('menu', 1, {
+            loop: true
+        })
+
+        setmusicInit(true)
+    }
+    
 
     return <View style={styles.menu}>
         <Title text={'Выбрать игру'} />
