@@ -11,6 +11,7 @@ import { AppLoading } from 'expo'
 
 import { GetAllFonts } from './Functions'
 import SyncStorage from 'sync-storage'
+import InstructionScreen from './components/InstructionScreen'
 
 const App = () => {
   let [fontsLoaded, setfontsLoaded] = useState(false)
@@ -36,6 +37,7 @@ const App = () => {
       <Route exact path="/" component={MenuScreen} />
       <Route path="/game/:gameId/:gameLVL?" component={GameScreen} />
       <Route path="/games" component={ChangeGameScreen} />
+      <Route path="/instruction" component={InstructionScreen} />
     </ImageBackground>
   </NativeRouter>
 }

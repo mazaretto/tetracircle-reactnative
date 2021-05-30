@@ -41,6 +41,10 @@ export default MenuScreen = () => {
                 <Text style={STYLES.btn}>Начать игру</Text>
             </Link>
 
+            <Link onPress={() => playSound('btn')} to="/instruction">
+                <Text style={STYLES.btn}>Как играть?</Text>
+            </Link>
+
             <TouchableHighlight onPress={() => {
                 playSound('btn')
 
