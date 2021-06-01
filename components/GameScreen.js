@@ -71,17 +71,19 @@ class GameScene extends React.Component {
         let colorArray = []
 
         // Разноцветные шарики
-        for(let i = 0; i <= rows; i++) {
+        for(let i = 0; i <= rows+1; i++) {
             let colorArrayItem = gameId == 1 ? randomElemArray(GAME.colors) : defaultColor,
                 findedColor = colorArray.filter(color => color === colorArrayItem)
 
             // Проверяем цвет
-            if(!findedColor.length && i > 1) {
+            if(findedColor.length && i > 1) {
                 colorArray.push(findedColor[0])
             } else {
                 colorArray.push(colorArrayItem)
             }
         }
+
+        console.log(colorArray)
 
         this.setState(() => ({ color: colorArray }))
     }
