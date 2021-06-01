@@ -13,7 +13,7 @@ export default InstructionScreen = () => {
         <View>
             <View style={{
                 alignItems: 'center',
-                marginBottom: 20
+                marginBottom: 10
             }}>
 
                 <Image
@@ -36,7 +36,7 @@ export default InstructionScreen = () => {
 const styles = StyleSheet.create({
     
     menu: {
-        paddingTop: 100,
+        paddingTop: 30,
         paddingLeft: 15,
         paddingRight: 15
     }
