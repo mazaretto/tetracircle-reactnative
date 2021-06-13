@@ -41,7 +41,7 @@ let GAME = {
     get circleWH () {
         return (this.wv / 6) / 1.5
     },
-    colors: ['green', 'red', 'blue', 'yellow']
+    colors: ['green', 'red', 'blue', 'orange', 'purple']
 }
 
 
@@ -82,8 +82,6 @@ class GameScene extends React.Component {
                 colorArray.push(colorArrayItem)
             }
         }
-
-        console.log(colorArray)
 
         this.setState(() => ({ color: colorArray }))
     }
@@ -175,14 +173,14 @@ class GameScene extends React.Component {
             borderColor: border
         } : {}
 
-        const { validRowsCount } = this.props 
+        let { validRowsCount, rows, balls } = this.props 
 
         return <TouchableHighlight onPress={() => {
             onPress ? onPress() : ''
         }} key={i} style={[{top: y, left: x, backgroundColor: color ? color : '#fff', ...styleBorder},styles.circle]}>
-            {border ? <Text style={{textAlign: 'center', fontSize: 43, color: border}}>
-                {validRowsCount}
-            </Text> : <View></View>}
+            {border ? <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+                <Text style={{ textAlign: 'center', fontSize: 43-(balls.toString().length * 5.5), color: border }}>{balls}</Text>
+            </View> : <View></View>}
         </TouchableHighlight>
     }
 
@@ -288,7 +286,7 @@ export default class MenuScreen extends React.Component {
                 if (balls === 500 && gameId != 2) {
                     this.pauseGame()
                     this.setState(() => ({ gameEnd: true }))
-                } else if (balls === -30) {
+                } else if (balls === -500) {
                     playSound('plusBall')
                 }
                 
@@ -490,18 +488,19 @@ export default class MenuScreen extends React.Component {
                 <TouchableHighlight onPress={() => this.toggleMenu('Menu')} style={[styles.menuItem, styles.menuLink]}>
                     <Text style={styles.menuText}>Меню</Text>
                 </TouchableHighlight>
-                <Text style={[styles.menuItem, styles.menuText]}>{balls} / {invalidBalls} баллов</Text>
-                <TouchableHighlight onPress={() => this.updateLVL(lvl + 1 > maxLVL ? 0 : lvl + 1)} style={[styles.menuItem, styles.menuLink, lvlTriggerColored ? {
+                <Text style={[styles.menuItem, styles.menuText]}>Ряды: {validRowsCount}</Text>
+                <Text style={[styles.menuItem, styles.menuText]}>Штрафы: {invalidBalls}</Text>
+                {/* <TouchableHighlight onPress={() => this.updateLVL(lvl + 1 > maxLVL ? 0 : lvl + 1)} style={[styles.menuItem, styles.menuLink, lvlTriggerColored ? {
                     backgroundColor: 'yellow'
                 } : {}]}>
                     <Text style={styles.menuText}>{textLvl}</Text>
-                </TouchableHighlight>
+                </TouchableHighlight> */}
             </View>
 
             {/* GameView */}
-            {balls < 150 ? 
+            {balls < 500 ? 
 
-                balls <= -30 || invalidBalls <= -30 ? 
+                balls <= -500 || invalidBalls <= -500 ? 
                     <View>
                         <Text style={styles.end}>Вы проиграли!</Text>
                         <Button title={'Начать заново'} onPress={() => this.newGame()} />
@@ -517,6 +516,7 @@ export default class MenuScreen extends React.Component {
                 actionCountValidRows={newCount => this.setValidRows(newCount)}
                 actionBall={newBall => this.setBalls(newBall)} 
                 actionInvalidBall={newBall => this.setInvalidBalls(newBall)}
+                balls={balls}
                 rows={rows} /> 
                 
             : <Text style={styles.end}>Игра успешно завершена! У вас {balls} баллов!</Text>}
@@ -539,14 +539,14 @@ const styles = StyleSheet.create({
         borderRadius: 50
     },
     menuText: {
-        fontSize: 18,
+        fontSize: 16,
         textAlign: 'center'
     },
     menuItem: {
         width: '33%',
         flex: 1,
         alignItems: 'center',
-        paddingVertical: 6
+        paddingVertical: 7
     },
     menuLink: {
         backgroundColor: 'lightblue'
