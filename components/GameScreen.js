@@ -70,16 +70,16 @@ class GameScene extends React.Component {
         let defaultColor = randomElemArray(GAME.colors)
         let colorArray = []
 
-        // Разноцветные шарики
-        for(let i = 0; i <= rows+1; i++) {
-            let colorArrayItem = gameId == 1 ? randomElemArray(GAME.colors) : defaultColor,
-                findedColor = colorArray.filter(color => color === colorArrayItem)
+        let randomIndex = Math.floor(Math.random() * rows)
 
-            // Проверяем цвет
-            if(findedColor.length && i > 1) {
-                colorArray.push(findedColor[0])
+        // Разноцветные шарики
+        for(let i = 0; i < rows; i++) {
+            let colorArrayItem = gameId == 1 ? randomElemArray(GAME.colors) : defaultColor
+
+            if(randomIndex === i) {
+                colorArray.push(colorArrayItem === defaultColor ? randomElemArray(GAME.colors) : colorArrayItem)
             } else {
-                colorArray.push(colorArrayItem)
+                colorArray.push(defaultColor)
             }
         }
 
@@ -286,7 +286,7 @@ export default class MenuScreen extends React.Component {
                 if (balls === 500 && gameId != 2) {
                     this.pauseGame()
                     this.setState(() => ({ gameEnd: true }))
-                } else if (balls === -500) {
+                } else if (balls === -30) {
                     playSound('plusBall')
                 }
                 
@@ -355,7 +355,7 @@ export default class MenuScreen extends React.Component {
             // 1 - больше скорость
             case 1:
                 this.setState(() => ({ 
-                    rows: 2
+                    rows: 3
                 }))
 
                 gameTypeTrigger = () => {
@@ -500,7 +500,7 @@ export default class MenuScreen extends React.Component {
             {/* GameView */}
             {balls < 500 ? 
 
-                balls <= -500 || invalidBalls <= -500 ? 
+                balls <= -30 || invalidBalls <= -30 ? 
                     <View>
                         <Text style={styles.end}>Вы проиграли!</Text>
                         <Button title={'Начать заново'} onPress={() => this.newGame()} />
