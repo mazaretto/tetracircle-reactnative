@@ -73,15 +73,17 @@ class GameScene extends React.Component {
         let randomIndex = Math.floor(Math.random() * rows)
 
         // Разноцветные шарики
-        for(let i = 0; i < rows; i++) {
+        for(let i = 0; i <= rows; i++) {
             let colorArrayItem = gameId == 1 ? randomElemArray(GAME.colors) : defaultColor
 
             if(randomIndex === i) {
-                colorArray.push(colorArrayItem === defaultColor ? randomElemArray(GAME.colors) : colorArrayItem)
+                colorArray.push(colorArrayItem === defaultColor && gameId == 1 ? randomElemArray(GAME.colors) : colorArrayItem)
             } else {
                 colorArray.push(defaultColor)
             }
         }
+
+        console.log(colorArray)
 
         this.setState(() => ({ color: colorArray }))
     }
@@ -355,7 +357,7 @@ export default class MenuScreen extends React.Component {
             // 1 - больше скорость
             case 1:
                 this.setState(() => ({ 
-                    rows: 3
+                    rows: 2
                 }))
 
                 gameTypeTrigger = () => {
